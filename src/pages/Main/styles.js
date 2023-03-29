@@ -1,4 +1,22 @@
-import styled from "styled-components";
+
+import styled, {keyframes, css} from "styled-components";
+
+
+
+// Criando animações
+const animate = keyframes`
+
+from {
+  transform: rotate(0deg);
+
+}
+to {
+  transform: rotate(360deg);
+}
+
+`;
+
+
 
 export const Container = styled.div`
   max-width: 700px;
@@ -34,9 +52,10 @@ export const Form = styled.form`
   }
 
 `;
-export const SubmitButton = styled.button.attrs({  
-  type: 'submit'  // botao do tipo submit
-})`
+export const SubmitButton = styled.button.attrs(props => ({  // atebção a sintaxe para adicionar um dado via props no button
+  type: 'submit',  // botao do tipo submit
+  disabled: props.loading // se for 1(true) ele desativa o botão
+}))`
   background: #0d2636;
   border: 0;
   border-radius: 4px;
@@ -45,5 +64,21 @@ export const SubmitButton = styled.button.attrs({
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &[disabled]{ // quando botao estiver disabled
+
+    cursor: not-allowed; //bloquando o cursor
+    opacity: 0.5; 
+
+  }
+
+  ${props => props.loading && // acessando as props - loading estando true
+    css`
+      svg {
+        animation: ${animate} 2s linear infinite; // acessando o svg o icon adicionando a animate(animacao criada linha 7) de maneira infinita enquanto estiver true
+      }
+    `
+  
+  }
 
 `;
