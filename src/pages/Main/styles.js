@@ -18,6 +18,33 @@ to {
 
 
 
+export const List = styled.ul`
+
+  list-style: none;
+  margin-top: 20px;
+  
+  li {
+    padding: 15px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    & + li {
+      border-top: 1px solid #eee;
+    }
+
+    a { 
+      color: #0d2636;
+      text-decoration: none;
+    }
+  }
+
+
+
+`;
+
+
 export const Container = styled.div`
   max-width: 700px;
   background: #FFF;
@@ -52,6 +79,19 @@ export const Form = styled.form`
   }
 
 `;
+
+export const DeleteButton = styled.button.attrs({
+  type: 'button' // botao tipo button
+
+})`
+  background: transparent;
+  color: #0D2636;
+  border: 0;
+  padding: 8px 7px;
+  outline: 0;
+  border-radius: 4px;
+`
+
 export const SubmitButton = styled.button.attrs(props => ({  // atebção a sintaxe para adicionar um dado via props no button
   type: 'submit',  // botao do tipo submit
   disabled: props.loading // se for 1(true) ele desativa o botão
@@ -82,3 +122,5 @@ export const SubmitButton = styled.button.attrs(props => ({  // atebção a sint
   }
 
 `;
+
+

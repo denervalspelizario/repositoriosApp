@@ -1,7 +1,7 @@
 import React, {useState, useCallback} from 'react'
 
-import { Container, Form, SubmitButton } from './styles'
-import {FaGithub, FaPlus, FaSpinner} from 'react-icons/fa' // import de icones nao esque de instalar com o comando  npm install react-icons
+import { Container, Form, SubmitButton, List, DeleteButton } from './styles'
+import {FaGithub, FaPlus, FaSpinner, FaBars, FaTrash} from 'react-icons/fa' // import de icones nao esque de instalar com o comando  npm install react-icons
 
 import api from '../../services/api'  // importando a api que é a base de url que usaremos para requisição
 
@@ -54,6 +54,20 @@ export default function Main() {
 
   }, [newRepo, repositorios]) // será chamada assim que atualizar qualquer info das states newRepo ou repositorios
     
+
+  // deletando um repositorio
+  // será usado um use callback ao invez de um função simple pois vai manipular o dado de uma state incluse no 
+  // firebase é melhor usar um callback
+  const deleteRepo = useCallback((repo) => { // este repo é o repo.name la que foi clicado o icone de excluir
+                                             
+
+    const encontrar = repositorios.filter(r => r.name !== repo) // encontrar vai receber todos os repositorio que forem DIFERENTES do repo.name
+                                                                // ou seja atravez do filter ele pega todos os respositorios MENOS aquele que foi cliclado
+                                                                
+    setRepositorios(encontrar) // e depois de encontrar receber os repositorios menos oq foi deletado é adicionado na state repositorios                                                         
+
+
+  },[repositorios]) // como a state repositorio foi alterada dentro dela ela sera chamada aqui
   
 
   return (
@@ -86,6 +100,25 @@ export default function Main() {
         </SubmitButton>
 
       </Form>
+
+      <List>
+        {repositorios.map( repo => (  // lista que vai percorrer todos os repositorios guardados na state
+
+          <li key={repo.name}> {/* a key sera o nome porque os nomes são unicos mesmo*/}
+            
+            <span> {/* vai retornar somente os nomes dos repositorios*/}
+              <DeleteButton 
+                onClick={() => deleteRepo(repo.name)}  // botao de exclusão de repositorio  - com funcao de exclusao do repo    
+              > 
+                <FaTrash size={14}/>
+              </DeleteButton>  
+              {repo.name}
+            </span>   
+            <a href=""> <FaBars size={24} /></a>
+          </li>
+
+        ))}
+      </List>
 
       
     </Container>
