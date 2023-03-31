@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react'
+import React, {useState, useCallback, useEffect} from 'react'
 
 import { Container, Form, SubmitButton, List, DeleteButton } from './styles'
 import {FaGithub, FaPlus, FaSpinner, FaBars, FaTrash} from 'react-icons/fa' // import de icones nao esque de instalar com o comando  npm install react-icons
@@ -12,22 +12,62 @@ export default function Main() {
   const [newRepo, setNewRepo] = useState('')
   const [repositorios, setRepositorios] = useState([]) // state que recebera de inicio um array vazio
   const [loading, setLoading] = useState(false)
+  const [alert, setAlert] = useState(null) // state de alerta 
 
+
+
+  // Did update - Buscar
+  useEffect(() => {
+    const repoStorage = localStorage.getItem('repos') // existindo algo dentro de repo(ver didMount) 
+
+    if(repoStorage){ // se tiver algo dentro de repoStorage
+      
+      setRepositorios(JSON.parse(repoStorage)) // adiciona na state repositorios ja convertido 
+    }
+
+  },[])
+
+
+  // Did Mount - Salvar alterações
+  useEffect(() => {
+
+    localStorage.setItem('repo', JSON.stringify(repositorios)) // pega todos os repositorios da state repositorios joga em repo ja tranformado em string
+
+  }, [repositorios])
+
+
+
+
+  // ADICIONANDO DADO DE INPUT EM STATE
   function dadoInput(e){
     setNewRepo(e.target.value) // ou seja o dado digitado no input aciona a funcao que joga esse dado na state newRepo automaticamente
-    
+    setAlert(null);
   }
 
+  // ACESSANDO API E VERIFICANDO SE REPOSITORIO EXISTE JA COM CONDICIONAL DE ERRO
   const buscaApi = useCallback((e) => { // Uma função callback é aquela que é executada em decorrência de algum evento no caso alteração de states newRepo ou repositorios
 
     e.preventDefault(); // para não atualizar a pagina
 
     async function submit(){
       setLoading(true) // loading funcionando
+      setAlert(null)// garantindo que esteja null antes da verificação 
       try {// deu certo
+
+        if(newRepo === ''){ // se a state estiver vazia joga um erro 
+          throw new Error('Você precisa indicar um repositorio!')
+        }
                                                              // get  = pegar, trazer informação
         const response =  await api.get(`repos/${newRepo}`)  // concatena a base url(api) com o dado digitado no input atravez do newRepo e adiciona na const response
                                                              // ou seja com essa concatenacao acessa api desejada 
+
+        
+        // BARRANDO REPOSITORIO DUPLICADO
+        const hasRepo = repositorios.find(repo => repo.name === newRepo) // procuro no reporitorio se ah um repositorio no mesmo nome
+        if(hasRepo){ //se ah 
+          throw new Error('Repositorio Duplicado') // joga o erro 
+        }
+
 
         // acessa somente o full_name do repositorio desejado                                                        
         const data = {                    
@@ -42,7 +82,7 @@ export default function Main() {
         setNewRepo('') // zerando a state paa limpar o input
       }
       catch(error){ // deu erro
-        
+        setAlert(true)// liga o alerta 
         console.log(error) // mensagem de erro
       }
       finally{ // terminou a execução da busaca da api desliga o loading
@@ -55,7 +95,7 @@ export default function Main() {
   }, [newRepo, repositorios]) // será chamada assim que atualizar qualquer info das states newRepo ou repositorios
     
 
-  // deletando um repositorio
+  // DELETANDO REPOSITORIO
   // será usado um use callback ao invez de um função simple pois vai manipular o dado de uma state incluse no 
   // firebase é melhor usar um callback
   const deleteRepo = useCallback((repo) => { // este repo é o repo.name la que foi clicado o icone de excluir
@@ -76,7 +116,7 @@ export default function Main() {
         <FaGithub />
         Meus Repositorios
       </h1> 
-      <Form onSubmit={buscaApi}>
+      <Form onSubmit={buscaApi} error={alert}>
         <input  
           type='text' 
           placeholder='adicionar repositorios' 
