@@ -1,7 +1,7 @@
-import axios from "axios"; // importando o axios para instalar comando  npm install axios
+import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://api.github.com'  // base de url para fazer a requisição
-})
+  baseURL: 'https://api.github.com',
+});
 
 export default api;

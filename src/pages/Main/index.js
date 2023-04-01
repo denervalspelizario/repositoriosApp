@@ -2,6 +2,7 @@ import React, {useState, useCallback, useEffect} from 'react'
 
 import { Container, Form, SubmitButton, List, DeleteButton } from './styles'
 import {FaGithub, FaPlus, FaSpinner, FaBars, FaTrash} from 'react-icons/fa' // import de icones nao esque de instalar com o comando  npm install react-icons
+import { Link } from 'react-router-dom'
 
 import api from '../../services/api'  // importando a api que é a base de url que usaremos para requisição
 
@@ -18,11 +19,11 @@ export default function Main() {
 
   // Did update - Buscar
   useEffect(() => {
-    const repoStorage = localStorage.getItem('repos') // existindo algo dentro de repo(ver didMount) 
+    const repoStorage = localStorage.getItem('repo') // existindo algo dentro de repo(ver didMount) 
 
     if(repoStorage){ // se tiver algo dentro de repoStorage
       
-      setRepositorios(JSON.parse(repoStorage)) // adiciona na state repositorios ja convertido 
+      setRepositorios(JSON.parse(repoStorage)); // adiciona na state repositorios ja convertido 
     }
 
   },[])
@@ -31,7 +32,7 @@ export default function Main() {
   // Did Mount - Salvar alterações
   useEffect(() => {
 
-    localStorage.setItem('repo', JSON.stringify(repositorios)) // pega todos os repositorios da state repositorios joga em repo ja tranformado em string
+    localStorage.setItem('repo', JSON.stringify(repositorios)); // pega todos os repositorios da state repositorios joga em repo ja tranformado em string
 
   }, [repositorios])
 
@@ -154,7 +155,11 @@ export default function Main() {
               </DeleteButton>  
               {repo.name}
             </span>   
-            <a href=""> <FaBars size={24} /></a>
+            <Link 
+              to={`/repositorio/${encodeURIComponent(repo.name)}` } // vai mandar a /repositorio/(nome do repositorio listado) 
+            > 
+              <FaBars size={24} />
+            </Link>
           </li>
 
         ))}
