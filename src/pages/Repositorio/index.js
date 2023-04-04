@@ -1,6 +1,6 @@
 import React,{useEffect, useState} from 'react'
 import api from '../../services/api'
-import { Container, Owner, Loading, BackButton, IssuesList } from './styles'
+import { Container, Owner, Loading, BackButton, IssuesList, PageAction } from './styles'
 import {  FaArrowLeft } from 'react-icons/fa'
 
 export default function Repositorio({match}) {
@@ -8,6 +8,7 @@ export default function Repositorio({match}) {
   const [repositorio, setRepositorio] = useState({}) // se inicia como objeto vazio pois receberá apenas 1 objeto
   const [issues, setIssues] = useState([]) // se inicia como objeto vazio, pois recebera varios objetos 
   const [loading, setLoading] = useState(true) 
+  const [page, setPage] = useState(1); // state para controlar as page iniciando com 1
 
 
   // FUNCAO DIDMOUNT  QUE FAZ 2 REQUISIÇÕES(COM ALGUNS PARAMS) E ADICIONA NAS STATES REPOSITORIO E ISSUES 
@@ -39,6 +40,35 @@ export default function Repositorio({match}) {
     load() // chamando a funcao
   
   },[match.params.repositorio]) // 
+
+  // FUNCÃO PARA AVANÇAR OU VOLTAR PAGINA - OBS ALTERANDO ELA CHAMA O useEffect ABAIXO
+  function handlePage(action){
+    setPage(action === 'back' ? page - 1 : page + 1) // ao clicar em um dos botoes ativa handlePage se for back -1 page senao será  next então + 1 page
+  }
+
+  // FUNÇÃO LINKADA A HANDLEPAGE QUE ALTERA A STATE SETISSUES COM  A RESQUISIÇÃO COM PARAMETROS = OPEN, OQUE ESTIVER NO PAGE E MAXIMO DE 5
+  useEffect(() => {
+
+    async function loadIssue(){
+     
+      const nomeRepo = decodeURIComponent(match.params.repositorio)  // adicionando em nomeRepo o caminho da url que estamos
+
+      const response = await api.get(`/repos/${nomeRepo}/issues`, { // response recebe a requisição com os parametros abaixo
+        params: {
+          state: 'open', // pegando só os estados do tipo open
+          page: page, // a page será a do state page, que dependendo do botao cliclado pode ser -1 ou +1 
+          per_page: 5 // maximo de 5 por pagina
+        }
+
+      })
+
+      setIssues(response.data)// state issues recebendo a requisição para renderiza-la
+    }
+
+    loadIssue() // chamando a funcão seão ela não funciona
+
+  },[match.params.repositorio, page])  // ou seja clicou nos botoes que ativam handlepage já chama esta função   
+
 
 
   if(loading){
@@ -94,6 +124,19 @@ export default function Repositorio({match}) {
           ))}
 
         </IssuesList>
+        <PageAction>
+          <button 
+            type='button' 
+            onClick={()=>  handlePage('back')}
+            disabled={page < 2} // se page for menor que 2 ativa o disabled olhar em styles
+          >
+            Voltar
+          </button>
+
+          <button type='button' onClick={()=> handlePage('next')}>
+            Proxima
+          </button>
+        </PageAction>
           
       </Container>
   )
